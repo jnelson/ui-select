@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.12.0 - 2015-05-28T07:44:11.360Z
+ * Version: 0.12.0 - 2015-07-08T23:13:47.798Z
  * License: MIT
  */
 
@@ -242,8 +242,8 @@ uis.directive('uiSelectChoices',
  * put as much logic in the controller (instead of the link functions) as possible so it can be easily tested.
  */
 uis.controller('uiSelectCtrl',
-  ['$scope', '$element', '$timeout', '$filter', 'uisRepeatParser', 'uiSelectMinErr', 'uiSelectConfig',
-  function($scope, $element, $timeout, $filter, RepeatParser, uiSelectMinErr, uiSelectConfig) {
+  ['$scope', '$element', '$timeout', '$filter', '$q', 'uisRepeatParser', 'uiSelectMinErr', 'uiSelectConfig',
+  function($scope, $element, $timeout, $filter, $q, RepeatParser, uiSelectMinErr, uiSelectConfig) {
 
   var ctrl = this;
 
@@ -521,24 +521,43 @@ uis.controller('uiSelectCtrl',
           }
         }
 
-        $scope.$broadcast('uis:select', item);
+        var completeSelection = function() {
+          $scope.$broadcast('uis:select', item);
+
+          $timeout(function(){
+            ctrl.onSelectCallback($scope, callbackContext);
+          });
+
+          if (ctrl.closeOnSelect) {
+            ctrl.close(skipFocusser);
+          }
+          if ($event && $event.type === 'click') {
+            ctrl.clickTriggeredSelect = true;
+          }
+        };
 
         var locals = {};
         locals[ctrl.parserResult.itemName] = item;
 
-        $timeout(function(){
-          ctrl.onSelectCallback($scope, {
-            $item: item,
-            $model: ctrl.parserResult.modelMapper($scope, locals)
-          });
-        });
+        var callbackContext = {
+          $item: item,
+          $model: ctrl.parserResult.modelMapper($scope, locals)
+        };
 
-        if (ctrl.closeOnSelect) {
-          ctrl.close(skipFocusser);
+        var onBeforeSelectResult = ctrl.onBeforeSelectCallback($scope, callbackContext);
+
+        if (angular.isDefined(onBeforeSelectResult)) {
+          if (!onBeforeSelectResult) {
+            return;  // abort the selection in case of deliberate falsey result
+          } else if (angular.isDefined(onBeforeSelectResult.promise)) {
+            onBeforeSelectResult.promise.then(completeSelection);
+          } else {
+            completeSelection();
+          }
+        } else {
+          completeSelection();
         }
-        if ($event && $event.type === 'click') {
-          ctrl.clickTriggeredSelect = true;
-        }
+
       }
     }
   };
@@ -800,6 +819,7 @@ uis.directive('uiSelect',
           }
         }();
 
+        $select.onBeforeSelectCallback = $parse(attrs.onBeforeSelect);
         $select.onSelectCallback = $parse(attrs.onSelect);
         $select.onRemoveCallback = $parse(attrs.onRemove);
         
