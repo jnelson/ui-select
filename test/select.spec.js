@@ -1090,7 +1090,7 @@ describe('ui-select tests', function() {
       currentSelection = scope.selection.selected;
     };
     var el = compileTemplate(
-      '<ui-select on-before-select="onBeforeSelectFn($item, $model)" on-select="onSelectFn($item, $model)" ng-model="selection.selected"> \
+      '<ui-select on-before-select="onBeforeSelectFn($item, $model)" ng-model="selection.selected"> \
         <ui-select-match placeholder="Pick one...">{{$select.selected.name}}</ui-select-match> \
         <ui-select-choices repeat="person.name as person in people | filter: $select.search"> \
           <div ng-bind-html="person.name | highlight: $select.search"></div> \
