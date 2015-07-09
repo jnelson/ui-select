@@ -995,7 +995,7 @@ describe('ui-select tests', function() {
         order.push('onBeforeSelectFn');
         deferred.resolve(order);
       });
-      return deferred;
+      return deferred.promise;
     };
     scope.onSelectFn = function ($item, $model, $label) {
       order.push('onSelectFn');
@@ -1055,7 +1055,7 @@ describe('ui-select tests', function() {
       $timeout(function () {
         deferred.reject();
       });
-      return deferred;
+      return deferred.promise;
     };
     scope.onSelectFn = function ($item, $model, $label) {
       scope.$item = $item;
