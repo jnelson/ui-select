@@ -312,8 +312,8 @@ uis.controller('uiSelectCtrl',
         if (angular.isDefined(onBeforeSelectResult)) {
           if (!onBeforeSelectResult) {
             return;  // abort the selection in case of deliberate falsey result
-          } else if (angular.isDefined(onBeforeSelectResult.promise)) {
-            onBeforeSelectResult.promise.then(completeSelection);
+          } else if (angular.isFunction(onBeforeSelectResult.then)) {
+            onBeforeSelectResult.then(completeSelection);
           } else {
             completeSelection();
           }
