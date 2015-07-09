@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.12.0 - 2015-07-08T23:13:47.798Z
+ * Version: 0.12.0 - 2015-07-09T17:17:27.160Z
  * License: MIT
  */
 
@@ -549,8 +549,8 @@ uis.controller('uiSelectCtrl',
         if (angular.isDefined(onBeforeSelectResult)) {
           if (!onBeforeSelectResult) {
             return;  // abort the selection in case of deliberate falsey result
-          } else if (angular.isDefined(onBeforeSelectResult.promise)) {
-            onBeforeSelectResult.promise.then(completeSelection);
+          } else if (angular.isFunction(onBeforeSelectResult.then)) {
+            onBeforeSelectResult.then(completeSelection);
           } else {
             completeSelection();
           }
